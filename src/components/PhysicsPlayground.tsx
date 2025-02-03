@@ -15,7 +15,6 @@ const PhysicsPlayground = () => {
   const [showNeural, setShowNeural] = useState(false);
   const shapesRef = useRef<Matter.Body[]>([]);
 
-  // Initialize physics engine
   useEffect(() => {
     if (!sceneRef.current) return;
 
@@ -139,14 +138,6 @@ const PhysicsPlayground = () => {
                   <Trash2 className="mr-2" />
                   Clear Shapes
                 </Button>
-
-                <Button
-                  onClick={() => setShowNeural(!showNeural)}
-                  className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow"
-                >
-                  <Brain className="mr-2" />
-                  Neural Visualization
-                </Button>
               </div>
             </div>
 
@@ -156,6 +147,14 @@ const PhysicsPlayground = () => {
             />
 
             <ShapeControls engine={engineRef.current} />
+
+            <Button
+              onClick={() => setShowNeural(!showNeural)}
+              className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow"
+            >
+              <Brain className="mr-2" />
+              Neural Visualization
+            </Button>
           </div>
         </div>
 
