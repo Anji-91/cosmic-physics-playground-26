@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Matter from 'matter-js';
-import { Brain } from 'lucide-react';
+import { Brain, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { PlanetSelector } from './PlanetSelector';
@@ -61,14 +61,6 @@ const PhysicsPlayground = () => {
   const addShape = useCallback((type: 'circle' | 'rectangle') => {
     const world = engineRef.current.world;
     
-    // Limit maximum shapes to prevent performance issues
-    if (shapesRef.current.length >= 20) {
-      const oldestShape = shapesRef.current.shift();
-      if (oldestShape) {
-        Matter.World.remove(world, oldestShape);
-      }
-    }
-
     const shape = type === 'circle'
       ? Matter.Bodies.circle(400, 50, 30, {
           render: { fillStyle: '#6B46C1' },
@@ -86,6 +78,15 @@ const PhysicsPlayground = () => {
     toast('Shape added!');
   }, []);
 
+  const clearShapes = useCallback(() => {
+    const world = engineRef.current.world;
+    shapesRef.current.forEach(shape => {
+      Matter.World.remove(world, shape);
+    });
+    shapesRef.current = [];
+    toast('All shapes cleared!');
+  }, []);
+
   const updateGravity = useCallback((planet: string) => {
     const gravityMap = {
       mercury: 3.7,
@@ -95,7 +96,7 @@ const PhysicsPlayground = () => {
       mars: 3.72,
       jupiter: 24.79,
       saturn: 10.44,
-      uranus: 8.87,
+      uranus: 8.69,
       neptune: 11.15,
     };
 
@@ -129,6 +130,14 @@ const PhysicsPlayground = () => {
                   className="w-full bg-space-blue hover:bg-space-blue/80 animate-float"
                 >
                   Add Rectangle
+                </Button>
+
+                <Button
+                  onClick={clearShapes}
+                  className="w-full bg-space-accent hover:bg-space-accent/80"
+                >
+                  <Trash2 className="mr-2" />
+                  Clear Shapes
                 </Button>
 
                 <Button
