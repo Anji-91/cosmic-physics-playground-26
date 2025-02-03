@@ -17,7 +17,7 @@ const gravityInfo: Record<string, string> = {
   
   saturn: "Saturn's gravity at its surface (defined at the top of its atmosphere) is 10.44 m/s², slightly stronger than Earth's. However, as a gas giant, Saturn's gravity varies significantly with depth, and its low density means that despite its size, its surface gravity isn't as strong as Jupiter's.",
   
-  uranus: "Uranus has a gravity of 8.87 m/s², similar to Venus. This ice giant's gravity helps maintain its unique sideways rotation and hold onto its system of rings and moons, despite being about four times less massive than Jupiter.",
+  uranus: "Uranus has a gravity of 8.69 m/s². This ice giant's gravity helps maintain its unique sideways rotation and hold onto its system of rings and moons, despite being about four times less massive than Jupiter.",
   
   neptune: "Neptune's gravity is 11.15 m/s², about 1.14 times stronger than Earth's. This strong gravitational pull, combined with its powerful winds, creates the fastest wind speeds in the solar system, reaching up to 1,200 mph."
 };
@@ -67,7 +67,7 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
 
   // Find the matching planet based on gravity value
   const getCurrentPlanet = () => {
-    const gravityMap = {
+    const gravityMap: Record<number, string> = {
       3.7: 'mercury',
       8.87: 'venus',
       9.81: 'earth',
@@ -75,18 +75,18 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
       3.72: 'mars',
       24.79: 'jupiter',
       10.44: 'saturn',
-      8.87: 'uranus',
+      8.69: 'uranus', // Updated Uranus gravity to avoid duplicate
       11.15: 'neptune'
     };
 
     // Find the closest gravity value
     const closest = Object.keys(gravityMap).reduce((prev, curr) => {
-      return Math.abs(parseFloat(curr) - gravity) < Math.abs(parseFloat(prev) - gravity) 
+      return Math.abs(Number(curr) - gravity) < Math.abs(Number(prev) - gravity) 
         ? curr 
         : prev;
     });
 
-    return gravityMap[closest as keyof typeof gravityMap];
+    return gravityMap[Number(closest)];
   };
 
   const currentPlanet = getCurrentPlanet();
