@@ -1,14 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
 interface NeuralVisProps {
   gravity: number;
 }
 
-export const NeuralVis = ({ gravity }: NeuralVisProps) => {
+export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previousGravityRef = useRef(gravity);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || previousGravityRef.current === gravity) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
@@ -42,6 +43,8 @@ export const NeuralVis = ({ gravity }: NeuralVisProps) => {
         drawConnection(110 + i * 300, 100, 390 + i * 300, 100, normalizedGravity);
       }
     }
+
+    previousGravityRef.current = gravity;
   }, [gravity]);
 
   return (
@@ -55,4 +58,6 @@ export const NeuralVis = ({ gravity }: NeuralVisProps) => {
       />
     </div>
   );
-};
+});
+
+NeuralVis.displayName = 'NeuralVis';

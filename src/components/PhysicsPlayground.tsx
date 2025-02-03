@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Matter from 'matter-js';
 import { Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { PlanetSelector } from './PlanetSelector';
 import { ShapeControls } from './ShapeControls';
@@ -11,9 +10,12 @@ import { NeuralVis } from './NeuralVis';
 const PhysicsPlayground = () => {
   const sceneRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef(Matter.Engine.create());
+  const renderRef = useRef<Matter.Render | null>(null);
   const [selectedPlanet, setSelectedPlanet] = useState('earth');
   const [showNeural, setShowNeural] = useState(false);
+  const shapesRef = useRef<Matter.Body[]>([]);
 
+  // Initialize physics engine
   useEffect(() => {
     if (!sceneRef.current) return;
 
@@ -28,30 +30,63 @@ const PhysicsPlayground = () => {
       },
     });
 
-    Matter.Runner.run(engineRef.current);
+    renderRef.current = render;
+
+    // Add walls to contain shapes
+    const walls = [
+      Matter.Bodies.rectangle(400, 610, 810, 20, { isStatic: true }), // bottom
+      Matter.Bodies.rectangle(-10, 300, 20, 620, { isStatic: true }), // left
+      Matter.Bodies.rectangle(810, 300, 20, 620, { isStatic: true }), // right
+    ];
+
+    Matter.World.add(engineRef.current.world, walls);
+
+    const runner = Matter.Runner.create();
+    Matter.Runner.run(runner, engineRef.current);
     Matter.Render.run(render);
 
     return () => {
-      Matter.Render.stop(render);
+      // Cleanup
+      Matter.World.clear(engineRef.current.world, false);
       Matter.Engine.clear(engineRef.current);
+      Matter.Render.stop(render);
+      Matter.Runner.stop(runner);
+      if (render.canvas) {
+        render.canvas.remove();
+      }
+      shapesRef.current = [];
     };
   }, []);
 
-  const addShape = (type: 'circle' | 'rectangle') => {
+  const addShape = useCallback((type: 'circle' | 'rectangle') => {
     const world = engineRef.current.world;
+    
+    // Limit maximum shapes to prevent performance issues
+    if (shapesRef.current.length >= 20) {
+      const oldestShape = shapesRef.current.shift();
+      if (oldestShape) {
+        Matter.World.remove(world, oldestShape);
+      }
+    }
+
     const shape = type === 'circle'
       ? Matter.Bodies.circle(400, 50, 30, {
           render: { fillStyle: '#6B46C1' },
+          restitution: 0.6,
+          friction: 0.1,
         })
       : Matter.Bodies.rectangle(400, 50, 60, 60, {
           render: { fillStyle: '#60A5FA' },
+          restitution: 0.6,
+          friction: 0.1,
         });
     
     Matter.World.add(world, shape);
+    shapesRef.current.push(shape);
     toast('Shape added!');
-  };
+  }, []);
 
-  const updateGravity = (planet: string) => {
+  const updateGravity = useCallback((planet: string) => {
     const gravityMap = {
       mercury: 3.7,
       venus: 8.87,
@@ -67,17 +102,17 @@ const PhysicsPlayground = () => {
     setSelectedPlanet(planet);
     engineRef.current.gravity.y = gravityMap[planet as keyof typeof gravityMap];
     toast(`Gravity set to ${planet}'s gravity!`);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-space-black text-white p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex gap-8">
-          <div className="w-3/4">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="w-full lg:w-3/4">
             <div ref={sceneRef} className="rounded-lg overflow-hidden border border-space-purple/30" />
           </div>
           
-          <div className="w-1/4 space-y-6">
+          <div className="w-full lg:w-1/4 space-y-6">
             <div className="bg-space-purple/10 p-4 rounded-lg backdrop-blur-sm">
               <h2 className="text-xl font-bold mb-4">Controls</h2>
               
