@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, memo } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NeuralVisProps {
   gravity: number;
