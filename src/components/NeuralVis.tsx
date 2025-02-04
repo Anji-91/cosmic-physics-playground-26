@@ -22,6 +22,18 @@ const gravityInfo: Record<string, string> = {
   neptune: "Neptune's gravity is 11.15 m/s², about 1.14 times stronger than Earth's. This strong gravitational pull, combined with its powerful winds, creates the fastest wind speeds in the solar system, reaching up to 1,200 mph."
 };
 
+const planetImages: Record<string, string> = {
+  venus: "/lovable-uploads/venus.jpg",
+  earth: "/lovable-uploads/earth.jpg",
+  moon: "/lovable-uploads/moon.jpg",
+  mars: "/lovable-uploads/mars.jpg",
+  jupiter: "/lovable-uploads/jupiter.jpg",
+  saturn: "/lovable-uploads/saturn.jpg",
+  uranus: "/lovable-uploads/uranus.jpg",
+  neptune: "/lovable-uploads/08afcaed-6954-4638-a11a-71fc8661e17f.png",
+  mercury: "/lovable-uploads/mercury.jpg"
+};
+
 export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previousGravityRef = useRef(gravity);
@@ -75,7 +87,7 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
       3.72: 'mars',
       24.79: 'jupiter',
       10.44: 'saturn',
-      8.69: 'uranus', // Updated Uranus gravity to avoid duplicate
+      8.69: 'uranus',
       11.15: 'neptune'
     };
 
@@ -91,6 +103,7 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
 
   const currentPlanet = getCurrentPlanet();
   const currentInfo = gravityInfo[currentPlanet] || '';
+  const currentImage = planetImages[currentPlanet] || '';
 
   return (
     <div className="bg-space-purple/10 p-4 rounded-lg backdrop-blur-sm">
@@ -102,9 +115,18 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
         className="w-full bg-space-black/50 rounded-lg mb-4"
       />
       <div className="mt-4 p-4 bg-space-black/30 rounded-lg">
-        <p className="text-white/90 leading-relaxed">
-          {currentInfo}
-        </p>
+        <div className="flex items-start gap-4">
+          {currentImage && (
+            <img 
+              src={currentImage} 
+              alt={`${currentPlanet} visualization`}
+              className="w-24 h-24 rounded-lg object-cover"
+            />
+          )}
+          <p className="text-white/90 leading-relaxed flex-1">
+            {currentInfo}
+          </p>
+        </div>
       </div>
     </div>
   );
