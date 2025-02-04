@@ -14,6 +14,16 @@ const PhysicsPlayground = () => {
   const [selectedPlanet, setSelectedPlanet] = useState('earth');
   const [showNeural, setShowNeural] = useState(false);
   const shapesRef = useRef<Matter.Body[]>([]);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!sceneRef.current) return;
@@ -31,7 +41,6 @@ const PhysicsPlayground = () => {
 
     renderRef.current = render;
 
-    // Add walls to contain shapes
     const walls = [
       Matter.Bodies.rectangle(400, 610, 810, 20, { isStatic: true }), // bottom
       Matter.Bodies.rectangle(-10, 300, 20, 620, { isStatic: true }), // left
@@ -45,7 +54,6 @@ const PhysicsPlayground = () => {
     Matter.Render.run(render);
 
     return () => {
-      // Cleanup
       Matter.World.clear(engineRef.current.world, false);
       Matter.Engine.clear(engineRef.current);
       Matter.Render.stop(render);
@@ -105,64 +113,84 @@ const PhysicsPlayground = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-space-black text-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="w-full lg:w-3/4">
-            <div ref={sceneRef} className="rounded-lg overflow-hidden border border-space-purple/30" />
-          </div>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Parallax Background */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'linear-gradient(225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)',
+          transform: `translateY(${scrollY * 0.5}px)`,
+          transition: 'transform 0.1s ease-out',
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen bg-gradient-to-b from-transparent to-space-black/90 text-white p-8">
+        <div className="max-w-6xl mx-auto backdrop-blur-sm rounded-xl p-8 border border-white/10 shadow-2xl">
+          <h1 className="text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+            Cosmic Physics Playground
+          </h1>
           
-          <div className="w-full lg:w-1/4 space-y-6">
-            <div className="bg-space-purple/10 p-4 rounded-lg backdrop-blur-sm">
-              <h2 className="text-xl font-bold mb-4">Controls</h2>
-              
-              <div className="space-y-4">
-                <Button 
-                  onClick={() => addShape('circle')}
-                  className="w-full bg-space-purple hover:bg-space-purple/80 animate-float"
-                >
-                  Add Circle
-                </Button>
-                
-                <Button 
-                  onClick={() => addShape('rectangle')}
-                  className="w-full bg-space-blue hover:bg-space-blue/80 animate-float"
-                >
-                  Add Rectangle
-                </Button>
-
-                <Button
-                  onClick={clearShapes}
-                  className="w-full bg-space-accent hover:bg-space-accent/80"
-                >
-                  <Trash2 className="mr-2" />
-                  Clear Shapes
-                </Button>
-              </div>
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="w-full lg:w-3/4">
+              <div 
+                ref={sceneRef} 
+                className="rounded-lg overflow-hidden border border-space-purple/30 shadow-lg transform hover:scale-[1.01] transition-transform duration-300"
+              />
             </div>
+            
+            <div className="w-full lg:w-1/4 space-y-6">
+              <div className="bg-space-purple/10 p-4 rounded-lg backdrop-blur-sm border border-white/10 hover:border-white/20 transition-colors">
+                <h2 className="text-xl font-bold mb-4">Controls</h2>
+                
+                <div className="space-y-4">
+                  <Button 
+                    onClick={() => addShape('circle')}
+                    className="w-full bg-space-purple hover:bg-space-purple/80 animate-float shadow-lg"
+                  >
+                    Add Circle
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => addShape('rectangle')}
+                    className="w-full bg-space-blue hover:bg-space-blue/80 animate-float shadow-lg"
+                  >
+                    Add Rectangle
+                  </Button>
 
-            <PlanetSelector 
-              selected={selectedPlanet}
-              onSelect={updateGravity}
-            />
+                  <Button
+                    onClick={clearShapes}
+                    className="w-full bg-space-accent hover:bg-space-accent/80 shadow-lg"
+                  >
+                    <Trash2 className="mr-2" />
+                    Clear Shapes
+                  </Button>
+                </div>
+              </div>
 
-            <ShapeControls engine={engineRef.current} />
+              <PlanetSelector 
+                selected={selectedPlanet}
+                onSelect={updateGravity}
+              />
 
-            <Button
-              onClick={() => setShowNeural(!showNeural)}
-              className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow"
-            >
-              <Brain className="mr-2" />
-              Neural Visualization
-            </Button>
+              <ShapeControls engine={engineRef.current} />
+
+              <Button
+                onClick={() => setShowNeural(!showNeural)}
+                className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow shadow-lg"
+              >
+                <Brain className="mr-2" />
+                Neural Visualization
+              </Button>
+            </div>
           </div>
+
+          {showNeural && (
+            <div className="mt-8 transform hover:scale-[1.01] transition-transform duration-300">
+              <NeuralVis gravity={engineRef.current.gravity.y} />
+            </div>
+          )}
         </div>
-
-        {showNeural && (
-          <div className="mt-8">
-            <NeuralVis gravity={engineRef.current.gravity.y} />
-          </div>
-        )}
       </div>
     </div>
   );
