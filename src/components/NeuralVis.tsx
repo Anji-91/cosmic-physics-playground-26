@@ -37,6 +37,7 @@ const planetImages: Record<string, string> = {
 export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previousGravityRef = useRef(gravity);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!canvasRef.current || previousGravityRef.current === gravity) return;
@@ -44,13 +45,16 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
+    const canvasWidth = isMobile ? canvasRef.current.clientWidth : 800;
+    canvasRef.current.width = canvasWidth;
+
     // Clear canvas
-    ctx.clearRect(0, 0, 800, 200);
+    ctx.clearRect(0, 0, canvasWidth, 200);
 
     // Draw neural network visualization
     const drawNeuron = (x: number, y: number, value: number) => {
       ctx.beginPath();
-      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.arc(x, y, isMobile ? 8 : 10, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(107, 70, 193, ${value})`;
       ctx.fill();
     };
@@ -66,16 +70,19 @@ export const NeuralVis = memo(({ gravity }: NeuralVisProps) => {
     // Normalize gravity value between 0 and 1
     const normalizedGravity = gravity / 25;
 
+    // Calculate spacing based on canvas width
+    const spacing = canvasWidth / 4;
+
     // Draw simple 3-layer network
     for (let i = 0; i < 3; i++) {
-      drawNeuron(100 + i * 300, 100, normalizedGravity);
+      drawNeuron(spacing + i * spacing, 100, normalizedGravity);
       if (i < 2) {
-        drawConnection(110 + i * 300, 100, 390 + i * 300, 100, normalizedGravity);
+        drawConnection(spacing + 10 + i * spacing, 100, spacing - 10 + (i + 1) * spacing, 100, normalizedGravity);
       }
     }
 
     previousGravityRef.current = gravity;
-  }, [gravity]);
+  }, [gravity, isMobile]);
 
   // Find the matching planet based on gravity value
   const getCurrentPlanet = () => {

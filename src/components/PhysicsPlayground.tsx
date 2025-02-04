@@ -7,6 +7,7 @@ import { PlanetSelector } from './PlanetSelector';
 import { ShapeControls } from './ShapeControls';
 import { NeuralVis } from './NeuralVis';
 import { Slider } from '@/components/ui/slider';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const PhysicsPlayground = () => {
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -19,6 +20,7 @@ const PhysicsPlayground = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [timeScale, setTimeScale] = useState(1);
   const runnerRef = useRef<Matter.Runner | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,12 +34,16 @@ const PhysicsPlayground = () => {
   useEffect(() => {
     if (!sceneRef.current) return;
 
+    // Get the container width for responsive canvas
+    const containerWidth = sceneRef.current.clientWidth;
+    const canvasHeight = isMobile ? 400 : 600; // Adjust height for mobile
+
     const render = Matter.Render.create({
       element: sceneRef.current,
       engine: engineRef.current,
       options: {
-        width: 800,
-        height: 600,
+        width: containerWidth,
+        height: canvasHeight,
         wireframes: false,
         background: '#0B0B0F',
       },
@@ -45,16 +51,17 @@ const PhysicsPlayground = () => {
 
     renderRef.current = render;
 
+    // Create walls based on container size
     const walls = [
-      Matter.Bodies.rectangle(400, 610, 810, 20, { 
+      Matter.Bodies.rectangle(containerWidth / 2, canvasHeight + 10, containerWidth + 20, 20, { 
         isStatic: true,
         render: { fillStyle: '#1a1a1a' }
       }),
-      Matter.Bodies.rectangle(-10, 300, 20, 620, { 
+      Matter.Bodies.rectangle(-10, canvasHeight / 2, 20, canvasHeight + 20, { 
         isStatic: true,
         render: { fillStyle: '#1a1a1a' }
       }),
-      Matter.Bodies.rectangle(810, 300, 20, 620, { 
+      Matter.Bodies.rectangle(containerWidth + 10, canvasHeight / 2, 20, canvasHeight + 20, { 
         isStatic: true,
         render: { fillStyle: '#1a1a1a' }
       }),
@@ -67,6 +74,38 @@ const PhysicsPlayground = () => {
     Matter.Runner.run(runner, engineRef.current);
     Matter.Render.run(render);
 
+    // Handle window resize
+    const handleResize = () => {
+      if (!sceneRef.current || !render.canvas) return;
+      const newWidth = sceneRef.current.clientWidth;
+      const newHeight = isMobile ? 400 : 600;
+      
+      render.canvas.width = newWidth;
+      render.canvas.height = newHeight;
+      render.options.width = newWidth;
+      render.options.height = newHeight;
+      
+      // Update walls position
+      walls.forEach(wall => Matter.World.remove(engineRef.current.world, wall));
+      const newWalls = [
+        Matter.Bodies.rectangle(newWidth / 2, newHeight + 10, newWidth + 20, 20, { 
+          isStatic: true,
+          render: { fillStyle: '#1a1a1a' }
+        }),
+        Matter.Bodies.rectangle(-10, newHeight / 2, 20, newHeight + 20, { 
+          isStatic: true,
+          render: { fillStyle: '#1a1a1a' }
+        }),
+        Matter.Bodies.rectangle(newWidth + 10, newHeight / 2, 20, newHeight + 20, { 
+          isStatic: true,
+          render: { fillStyle: '#1a1a1a' }
+        }),
+      ];
+      Matter.World.add(engineRef.current.world, newWalls);
+    };
+
+    window.addEventListener('resize', handleResize);
+
     return () => {
       Matter.World.clear(engineRef.current.world, false);
       Matter.Engine.clear(engineRef.current);
@@ -75,9 +114,10 @@ const PhysicsPlayground = () => {
       if (render.canvas) {
         render.canvas.remove();
       }
+      window.removeEventListener('resize', handleResize);
       shapesRef.current = [];
     };
-  }, []);
+  }, [isMobile]);
 
   const addShape = useCallback((type: 'circle' | 'rectangle' | 'triangle') => {
     const world = engineRef.current.world;
@@ -174,20 +214,20 @@ const PhysicsPlayground = () => {
     <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 z-0 bg-black" />
       
-      <div className="relative z-10 min-h-screen bg-gradient-to-b from-transparent to-space-black/90 text-white p-8">
-        <div className="max-w-6xl mx-auto backdrop-blur-sm rounded-xl p-8 border border-white/10 shadow-2xl">
-          <h1 className="text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse">
+      <div className="relative z-10 min-h-screen bg-gradient-to-b from-transparent to-space-black/90 text-white p-4 md:p-8">
+        <div className="max-w-6xl mx-auto backdrop-blur-sm rounded-xl p-4 md:p-8 border border-white/10 shadow-2xl">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse">
             Cosmic Physics Playground
           </h1>
           
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
             <div className="w-full lg:w-3/4">
               <div 
                 ref={sceneRef} 
                 className="rounded-lg overflow-hidden border border-space-purple/30 shadow-lg transform hover:scale-[1.01] transition-transform duration-300"
               />
               
-              <div className="mt-4 flex gap-4 flex-wrap">
+              <div className="mt-4 flex flex-wrap gap-4">
                 <Button
                   onClick={togglePause}
                   variant="outline"
@@ -197,8 +237,8 @@ const PhysicsPlayground = () => {
                   {isPaused ? 'Resume' : 'Pause'}
                 </Button>
                 
-                <div className="flex-1 flex items-center gap-4 bg-space-purple/10 rounded-lg px-4">
-                  <Zap className="text-yellow-400" />
+                <div className="flex-1 flex items-center gap-4 bg-space-purple/10 rounded-lg px-4 py-2">
+                  <Zap className="text-yellow-400 hidden sm:block" />
                   <div className="flex-1">
                     <Slider
                       value={[timeScale]}
@@ -214,11 +254,11 @@ const PhysicsPlayground = () => {
               </div>
             </div>
             
-            <div className="w-full lg:w-1/4 space-y-6">
+            <div className="w-full lg:w-1/4 space-y-4">
               <div className="bg-space-purple/10 p-4 rounded-lg backdrop-blur-sm border border-white/10 hover:border-white/20 transition-colors">
                 <h2 className="text-xl font-bold mb-4">Controls</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Button 
                     onClick={() => addShape('circle')}
                     className="w-full bg-space-purple hover:bg-space-purple/80 animate-float shadow-lg"
