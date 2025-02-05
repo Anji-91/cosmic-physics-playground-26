@@ -27,18 +27,21 @@ export const PlanetSelector = ({ selected, onSelect }: PlanetSelectorProps) => {
           <Button
             key={planet.id}
             onClick={() => onSelect(planet.id)}
-            className={`relative overflow-hidden transform hover:scale-105 transition-all duration-300 hover:shadow-lg ${
+            className={`relative overflow-hidden transform hover:scale-110 hover:-translate-y-1 transition-all duration-500 hover:shadow-[0_0_20px_${planet.color}80] ${
               selected === planet.id ? 'ring-2 ring-white/50' : ''
-            }`}
+            } group`}
             style={{ 
               backgroundColor: planet.color,
               transform: selected === planet.id ? 'scale(1.05)' : 'scale(1)'
             }}
           >
-            <span className="relative z-10 font-semibold">{planet.name}</span>
+            <span className="relative z-10 font-semibold group-hover:tracking-wider transition-all duration-300">
+              {planet.name}
+            </span>
             <div 
-              className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent hover:from-black/30 transition-all duration-300"
+              className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent group-hover:from-black/30 group-hover:to-transparent transition-all duration-500 group-hover:scale-110"
             />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
           </Button>
         ))}
       </div>

@@ -231,7 +231,7 @@ const PhysicsPlayground = () => {
                 <Button
                   onClick={togglePause}
                   variant="outline"
-                  className="bg-space-purple/10 hover:bg-space-purple/20 transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_15px_rgba(147,51,234,0.5)] hover:border-purple-500"
+                  className="bg-space-purple/10 hover:bg-space-purple/20 transform hover:-translate-y-1 hover:rotate-3 transition-all duration-500 hover:shadow-[0_10px_20px_rgba(147,51,234,0.3)] border border-purple-500/50 hover:border-purple-500"
                 >
                   {isPaused ? <Play className="mr-2 animate-bounce" /> : <Pause className="mr-2 animate-pulse" />}
                   {isPaused ? 'Resume' : 'Pause'}
@@ -261,21 +261,21 @@ const PhysicsPlayground = () => {
                 <div className="space-y-2">
                   <Button 
                     onClick={() => addShape('circle')}
-                    className="w-full bg-space-purple hover:bg-space-purple/80 animate-float shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(147,51,234,0.6)] hover:translate-y-[-2px]"
+                    className="w-full bg-space-purple hover:bg-space-purple/90 transform hover:scale-105 hover:-translate-y-1 hover:rotate-2 transition-all duration-500 hover:shadow-[0_0_30px_rgba(147,51,234,0.4)] hover:border-purple-400"
                   >
                     Add Circle
                   </Button>
                   
                   <Button 
                     onClick={() => addShape('rectangle')}
-                    className="w-full bg-space-blue hover:bg-space-blue/80 animate-float shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(96,165,250,0.6)] hover:rotate-1"
+                    className="w-full bg-space-blue hover:bg-space-blue/90 transform hover:scale-105 hover:-translate-y-1 hover:-rotate-2 transition-all duration-500 hover:shadow-[0_0_30px_rgba(96,165,250,0.4)] hover:border-blue-400"
                   >
                     Add Rectangle
                   </Button>
 
                   <Button 
                     onClick={() => addShape('triangle')}
-                    className="w-full bg-space-accent hover:bg-space-accent/80 animate-float shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,61,113,0.6)] hover:rotate-[-1deg]"
+                    className="w-full bg-space-accent hover:bg-space-accent/90 transform hover:scale-105 hover:-translate-y-1 hover:rotate-3 transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,61,113,0.4)] hover:border-pink-400"
                   >
                     Add Triangle
                   </Button>
@@ -283,9 +283,9 @@ const PhysicsPlayground = () => {
                   <Button
                     onClick={clearShapes}
                     variant="destructive"
-                    className="w-full shadow-lg group transform hover:scale-105 transition-all duration-300 hover:bg-red-600 hover:shadow-[0_0_20px_rgba(239,68,68,0.6)]"
+                    className="w-full shadow-lg group transform hover:scale-105 hover:-translate-y-1 transition-all duration-500 hover:bg-red-600/90 hover:shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:border-red-400"
                   >
-                    <Trash2 className="mr-2 group-hover:rotate-12 transition-transform" />
+                    <Trash2 className="mr-2 group-hover:rotate-12 transition-transform duration-500" />
                     Clear Shapes
                   </Button>
                 </div>
@@ -300,9 +300,9 @@ const PhysicsPlayground = () => {
 
               <Button
                 onClick={() => setShowNeural(!showNeural)}
-                className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow shadow-lg group transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,61,113,0.6)] hover:translate-y-[-2px]"
+                className="w-full bg-space-accent hover:bg-space-accent/90 transform hover:scale-105 hover:-translate-y-1 hover:skew-x-2 transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,61,113,0.4)] group"
               >
-                <Brain className="mr-2 group-hover:rotate-12 transition-transform animate-pulse" />
+                <Brain className="mr-2 group-hover:rotate-[360deg] transition-all duration-700" />
                 Neural Visualization
               </Button>
             </div>
