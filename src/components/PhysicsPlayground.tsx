@@ -231,14 +231,14 @@ const PhysicsPlayground = () => {
                 <Button
                   onClick={togglePause}
                   variant="outline"
-                  className="bg-space-purple/10 hover:bg-space-purple/20"
+                  className="bg-space-purple/10 hover:bg-space-purple/20 transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_15px_rgba(147,51,234,0.5)] hover:border-purple-500"
                 >
-                  {isPaused ? <Play className="mr-2" /> : <Pause className="mr-2" />}
+                  {isPaused ? <Play className="mr-2 animate-bounce" /> : <Pause className="mr-2 animate-pulse" />}
                   {isPaused ? 'Resume' : 'Pause'}
                 </Button>
                 
-                <div className="flex-1 flex items-center gap-4 bg-space-purple/10 rounded-lg px-4 py-2">
-                  <Zap className="text-yellow-400 hidden sm:block" />
+                <div className="flex-1 flex items-center gap-4 bg-space-purple/10 rounded-lg px-4 py-2 hover:bg-space-purple/20 transition-all duration-300">
+                  <Zap className="text-yellow-400 hidden sm:block animate-pulse" />
                   <div className="flex-1">
                     <Slider
                       value={[timeScale]}
@@ -261,21 +261,21 @@ const PhysicsPlayground = () => {
                 <div className="space-y-2">
                   <Button 
                     onClick={() => addShape('circle')}
-                    className="w-full bg-space-purple hover:bg-space-purple/80 animate-float shadow-lg"
+                    className="w-full bg-space-purple hover:bg-space-purple/80 animate-float shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(147,51,234,0.6)] hover:translate-y-[-2px]"
                   >
                     Add Circle
                   </Button>
                   
                   <Button 
                     onClick={() => addShape('rectangle')}
-                    className="w-full bg-space-blue hover:bg-space-blue/80 animate-float shadow-lg"
+                    className="w-full bg-space-blue hover:bg-space-blue/80 animate-float shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(96,165,250,0.6)] hover:rotate-1"
                   >
                     Add Rectangle
                   </Button>
 
                   <Button 
                     onClick={() => addShape('triangle')}
-                    className="w-full bg-space-accent hover:bg-space-accent/80 animate-float shadow-lg"
+                    className="w-full bg-space-accent hover:bg-space-accent/80 animate-float shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,61,113,0.6)] hover:rotate-[-1deg]"
                   >
                     Add Triangle
                   </Button>
@@ -283,7 +283,7 @@ const PhysicsPlayground = () => {
                   <Button
                     onClick={clearShapes}
                     variant="destructive"
-                    className="w-full shadow-lg group"
+                    className="w-full shadow-lg group transform hover:scale-105 transition-all duration-300 hover:bg-red-600 hover:shadow-[0_0_20px_rgba(239,68,68,0.6)]"
                   >
                     <Trash2 className="mr-2 group-hover:rotate-12 transition-transform" />
                     Clear Shapes
@@ -300,9 +300,9 @@ const PhysicsPlayground = () => {
 
               <Button
                 onClick={() => setShowNeural(!showNeural)}
-                className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow shadow-lg group"
+                className="w-full bg-space-accent hover:bg-space-accent/80 animate-glow shadow-lg group transform hover:scale-105 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,61,113,0.6)] hover:translate-y-[-2px]"
               >
-                <Brain className="mr-2 group-hover:rotate-12 transition-transform" />
+                <Brain className="mr-2 group-hover:rotate-12 transition-transform animate-pulse" />
                 Neural Visualization
               </Button>
             </div>

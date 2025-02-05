@@ -27,14 +27,17 @@ export const PlanetSelector = ({ selected, onSelect }: PlanetSelectorProps) => {
           <Button
             key={planet.id}
             onClick={() => onSelect(planet.id)}
-            className={`relative overflow-hidden ${
+            className={`relative overflow-hidden transform hover:scale-105 transition-all duration-300 hover:shadow-lg ${
               selected === planet.id ? 'ring-2 ring-white/50' : ''
             }`}
-            style={{ backgroundColor: planet.color }}
+            style={{ 
+              backgroundColor: planet.color,
+              transform: selected === planet.id ? 'scale(1.05)' : 'scale(1)'
+            }}
           >
-            <span className="relative z-10">{planet.name}</span>
+            <span className="relative z-10 font-semibold">{planet.name}</span>
             <div 
-              className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent hover:from-black/30 transition-all duration-300"
             />
           </Button>
         ))}
