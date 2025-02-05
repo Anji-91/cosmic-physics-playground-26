@@ -123,25 +123,29 @@ const PhysicsPlayground = () => {
     const world = engineRef.current.world;
     let shape;
     
+    // Get the current canvas width for responsive positioning
+    const canvasWidth = renderRef.current?.canvas.width || 800;
+    const startX = canvasWidth / 2; // Center horizontally
+    
     const randomColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
     
     switch(type) {
       case 'circle':
-        shape = Matter.Bodies.circle(400, 50, 30, {
+        shape = Matter.Bodies.circle(startX, 50, 30, {
           render: { fillStyle: randomColor },
           restitution: 0.6,
           friction: 0.1,
         });
         break;
       case 'rectangle':
-        shape = Matter.Bodies.rectangle(400, 50, 60, 60, {
+        shape = Matter.Bodies.rectangle(startX, 50, 60, 60, {
           render: { fillStyle: randomColor },
           restitution: 0.6,
           friction: 0.1,
         });
         break;
       case 'triangle':
-        shape = Matter.Bodies.polygon(400, 50, 3, 40, {
+        shape = Matter.Bodies.polygon(startX, 50, 3, 40, {
           render: { fillStyle: randomColor },
           restitution: 0.6,
           friction: 0.1,
