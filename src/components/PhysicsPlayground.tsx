@@ -49,11 +49,15 @@ const PhysicsPlayground = () => {
 
     renderRef.current = render;
 
-    // Add collision detection
+    // Update collision detection to correctly access position
     Matter.Events.on(engineRef.current, 'collisionStart', (event) => {
       event.pairs.forEach((pair) => {
-        const { position } = pair.collision;
-        setParticleEffects(prev => [...prev, { x: position.x, y: position.y }]);
+        const { bodyA, bodyB } = pair;
+        const collisionPoint = {
+          x: (bodyA.position.x + bodyB.position.x) / 2,
+          y: (bodyA.position.y + bodyB.position.y) / 2
+        };
+        setParticleEffects(prev => [...prev, collisionPoint]);
       });
     });
 
