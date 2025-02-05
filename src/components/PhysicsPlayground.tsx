@@ -216,12 +216,42 @@ const PhysicsPlayground = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 z-0 bg-black" />
-      
+      {/* Parallax Background Elements */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-10 left-1/4 w-4 h-4 bg-purple-500/30 rounded-full animate-float" 
+             style={{animationDelay: '0s', transform: `translateY(${scrollY * 0.2}px)`}} />
+        <div className="absolute top-20 right-1/3 w-6 h-6 bg-blue-500/30 rounded-full animate-float" 
+             style={{animationDelay: '0.5s', transform: `translateY(${scrollY * 0.3}px)`}} />
+        <div className="absolute top-40 left-1/3 w-8 h-8 bg-pink-500/30 rounded-full animate-float" 
+             style={{animationDelay: '1s', transform: `translateY(${scrollY * 0.4}px)`}} />
+        <div className="absolute bottom-20 right-1/4 w-5 h-5 bg-yellow-500/30 rounded-full animate-float" 
+             style={{animationDelay: '1.5s', transform: `translateY(${scrollY * 0.25}px)`}} />
+        
+        {/* Star field effect */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-glow"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              transform: `translateY(${scrollY * (0.1 + Math.random() * 0.3)}px)`
+            }}
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 min-h-screen bg-gradient-to-b from-transparent to-space-black/90 text-white p-4 md:p-8">
-        <div className="max-w-6xl mx-auto backdrop-blur-sm rounded-xl p-4 md:p-8 border border-white/10 shadow-2xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse">
+        <div className="max-w-6xl mx-auto backdrop-blur-sm rounded-xl p-4 md:p-8 border border-white/10 shadow-2xl 
+                      transform transition-all duration-500 hover:border-white/20"
+             style={{transform: `translateY(${scrollY * 0.1}px)`}}>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-8 text-center bg-clip-text text-transparent 
+                       bg-gradient-to-r from-purple-400 to-pink-600 animate-pulse relative">
             Cosmic Physics Playground
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/20 to-pink-600/20 blur-xl 
+                          opacity-50 group-hover:opacity-75 transition-opacity"
+                 style={{transform: `translateY(${scrollY * -0.05}px)`}} />
           </h1>
           
           <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
