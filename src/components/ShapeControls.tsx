@@ -1,7 +1,10 @@
+
 import React, { useState } from 'react';
 import { Engine, Bodies, Body, World } from 'matter-js';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ShapeControlsProps {
   engine: Matter.Engine;
@@ -9,6 +12,8 @@ interface ShapeControlsProps {
 
 export const ShapeControls = ({ engine }: ShapeControlsProps) => {
   const [size, setSize] = useState(30);
+  const [rotation, setRotation] = useState(0);
+  const [frameRate, setFrameRate] = useState(60);
 
   const updateShapeSizes = (newSize: number) => {
     setSize(newSize);
@@ -18,6 +23,24 @@ export const ShapeControls = ({ engine }: ShapeControlsProps) => {
       const scale = newSize / 30;
       Body.scale(body, scale, scale);
     });
+    toast('Shape size updated');
+  };
+
+  const updateRotation = (newRotation: number) => {
+    setRotation(newRotation);
+    engine.world.bodies.forEach((body) => {
+      if (body.isStatic) return;
+      Body.setAngle(body, (newRotation * Math.PI) / 180);
+    });
+    toast('Shape rotation updated');
+  };
+
+  const updateFrameRate = (newFrameRate: number) => {
+    setFrameRate(newFrameRate);
+    if (engine.timing) {
+      engine.timing.timeScale = 60 / newFrameRate;
+    }
+    toast('Frame rate updated');
   };
 
   return (
@@ -35,6 +58,37 @@ export const ShapeControls = ({ engine }: ShapeControlsProps) => {
             step={1}
             className="w-full"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Rotation (degrees)</Label>
+          <div className="flex items-center gap-2">
+            <Slider
+              value={[rotation]}
+              onValueChange={([value]) => updateRotation(value)}
+              min={0}
+              max={360}
+              step={1}
+              className="w-full"
+            />
+            <RotateCcw 
+              className="h-4 w-4 cursor-pointer hover:text-primary"
+              onClick={() => updateRotation(0)}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Frame Rate</Label>
+          <Slider
+            value={[frameRate]}
+            onValueChange={([value]) => updateFrameRate(value)}
+            min={15}
+            max={120}
+            step={1}
+            className="w-full"
+          />
+          <div className="text-sm text-gray-400">{frameRate} FPS</div>
         </div>
       </div>
     </div>
