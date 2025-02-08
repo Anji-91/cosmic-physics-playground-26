@@ -29,10 +29,27 @@ export const ShapeControls = ({ engine }: ShapeControlsProps) => {
   const updateRotation = (newRotation: number) => {
     setRotation(newRotation);
     engine.world.bodies.forEach((body) => {
-      if (body.isStatic) return;
-      Body.setAngle(body, (newRotation * Math.PI) / 180);
+      // Skip static bodies and circles (circles don't show rotation visually)
+      if (body.isStatic || body.label === 'Circle Body') return;
+      
+      // Convert rotation from degrees to radians
+      const angleInRadians = (newRotation * Math.PI) / 180;
+      
+      // Reset angular velocity to prevent continuous rotation
+      Body.setAngularVelocity(body, 0);
+      
+      // Set the new angle
+      Body.setAngle(body, angleInRadians);
+      
+      // Make sure the body is awake to apply changes
+      Body.setStatic(body, false);
     });
     toast('Shape rotation updated');
+  };
+
+  const resetRotation = () => {
+    updateRotation(0);
+    toast('Rotation reset to 0°');
   };
 
   const updateFrameRate = (newFrameRate: number) => {
@@ -73,7 +90,7 @@ export const ShapeControls = ({ engine }: ShapeControlsProps) => {
             />
             <RotateCcw 
               className="h-4 w-4 cursor-pointer hover:text-primary"
-              onClick={() => updateRotation(0)}
+              onClick={resetRotation}
             />
           </div>
         </div>
