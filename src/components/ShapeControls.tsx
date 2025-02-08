@@ -77,8 +77,8 @@ export const ShapeControls = ({ engine }: ShapeControlsProps) => {
     if (engine.timing) {
       // Update engine timing settings
       engine.timing.timeScale = 60 / newFrameRate;
-      // Cap the maximum physics step to prevent large jumps
-      engine.timing.timestep = 1000 / newFrameRate;
+      // Use delta instead of timestep for frame timing
+      engine.timing.delta = 1000 / newFrameRate;
     }
     toast('Frame rate updated');
   };
