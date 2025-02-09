@@ -15,10 +15,16 @@ const Subscribe = () => {
   }, []);
 
   const checkSubscription = async () => {
-    const { data: subscription } = await supabase
+    const { data: subscription, error } = await supabase
       .from('subscriptions')
       .select('status')
-      .single();
+      .eq('user_id', (await supabase.auth.getUser()).data.user?.id || '')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking subscription:', error);
+      return;
+    }
 
     if (subscription?.status === 'active') {
       navigate('/');
