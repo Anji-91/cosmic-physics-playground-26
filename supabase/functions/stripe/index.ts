@@ -49,26 +49,16 @@ Deno.serve(async (req) => {
       stripeCustomerId = customer.id
     }
 
-    // Create Stripe Checkout session
+    // Create Stripe Checkout session for one-time payment
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       line_items: [
         {
-          price_data: {
-            currency: 'inr',
-            product_data: {
-              name: 'App Subscription',
-              description: 'Access to all features',
-            },
-            unit_amount: 500, // ₹5 in paise
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: 'price_1Qqg2hKuno5qhUHctG4xRE73', // Using the provided price ID
           quantity: 1,
         },
       ],
-      mode: 'subscription',
+      mode: 'payment',
       success_url: `${req.headers.get('Origin')}/`,
       cancel_url: `${req.headers.get('Origin')}/subscribe`,
     })

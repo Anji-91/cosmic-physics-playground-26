@@ -56,9 +56,9 @@ const Subscribe = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Subscribe to Continue</CardTitle>
+          <CardTitle>One-Time Payment Required</CardTitle>
           <CardDescription>
-            Get full access to all features for just ₹5/month
+            Get full access to all features for just ₹5
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -71,13 +71,17 @@ const Subscribe = () => {
               <span className="mr-2">✓</span>
               Priority support
             </li>
+            <li className="flex items-center">
+              <span className="mr-2">✓</span>
+              Lifetime access
+            </li>
           </ul>
           <Button
             className="w-full"
             onClick={handleSubscribe}
             disabled={loading}
           >
-            {loading ? 'Loading...' : 'Subscribe Now - ₹5/month'}
+            {loading ? 'Loading...' : 'Pay ₹5 Now'}
           </Button>
         </CardContent>
       </Card>
