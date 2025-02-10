@@ -24,7 +24,7 @@ const Subscribe = () => {
         return;
       }
       setUserId(user.id);
-      checkSubscription(user.id);
+      await checkSubscription(user.id);
     } catch (error: any) {
       console.error('Error checking user:', error);
       toast.error('Authentication error. Please sign in again.');

@@ -62,12 +62,19 @@ Deno.serve(async (req) => {
       stripeCustomerId = customer.id
     }
 
-    // Create Stripe Checkout session
+    // Create Stripe Checkout session with one-time payment
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       line_items: [
         {
-          price: 'price_1Qqg2hKuno5qhUHctG4xRE73',
+          price_data: {
+            currency: 'inr',
+            product_data: {
+              name: 'Full Access',
+              description: 'One-time payment for full access to all features',
+            },
+            unit_amount: 500, // ₹5 in paise
+          },
           quantity: 1,
         },
       ],
