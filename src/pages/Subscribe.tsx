@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 const Subscribe = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,18 +18,33 @@ const Subscribe = () => {
 
   const checkUser = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
         toast.error('Please sign in first');
         navigate('/auth');
         return;
       }
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error('User error:', userError);
+        toast.error('Authentication error. Please sign in again.');
+        await supabase.auth.signOut();
+        navigate('/auth');
+        return;
+      }
+
       setUserId(user.id);
       await checkSubscription(user.id);
     } catch (error: any) {
       console.error('Error checking user:', error);
       toast.error('Authentication error. Please sign in again.');
       navigate('/auth');
+    } finally {
+      setPageLoading(false);
     }
   };
 
@@ -57,9 +73,9 @@ const Subscribe = () => {
   const handleSubscribe = async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!session) {
+      if (sessionError || !session) {
         toast.error('Please sign in first');
         navigate('/auth');
         return;
@@ -90,8 +106,16 @@ const Subscribe = () => {
     }
   };
 
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        Loading...
+      </div>
+    );
+  }
+
   if (!userId) {
-    return null; // Wait for auth check
+    return null;
   }
 
   return (
