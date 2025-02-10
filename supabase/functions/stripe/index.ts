@@ -13,7 +13,11 @@ Deno.serve(async (req) => {
     // Get auth header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      throw new Error('Missing Authorization header')
+      console.error('Missing Authorization header')
+      return new Response(
+        JSON.stringify({ error: 'Missing Authorization header' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
     }
 
     // Create Supabase client
@@ -34,6 +38,8 @@ Deno.serve(async (req) => {
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       )
     }
+
+    console.log('Processing payment for user:', user.id) // Debug log
 
     // Check for existing subscription
     const { data: existingSubscription, error: subError } = await supabaseClient
@@ -67,6 +73,7 @@ Deno.serve(async (req) => {
         },
       })
       stripeCustomerId = customer.id
+      console.log('Created new Stripe customer:', stripeCustomerId) // Debug log
     }
 
     // Create Stripe Checkout session
@@ -82,6 +89,8 @@ Deno.serve(async (req) => {
       success_url: `${req.headers.get('Origin')}/`,
       cancel_url: `${req.headers.get('Origin')}/subscribe`,
     })
+
+    console.log('Created Stripe session:', session.id) // Debug log
 
     // Create or update subscription record
     if (!existingSubscription) {

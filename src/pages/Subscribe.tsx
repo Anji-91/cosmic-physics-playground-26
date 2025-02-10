@@ -73,14 +73,18 @@ const Subscribe = () => {
   const handleSubscribe = async () => {
     try {
       setLoading(true);
+      console.log('Starting payment process...'); // Debug log
+      
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
+        console.error('Session error:', sessionError);
         toast.error('Please sign in first');
         navigate('/auth');
         return;
       }
 
+      console.log('Calling Stripe function...'); // Debug log
       const { data, error } = await supabase.functions.invoke('stripe', {
         body: {},
         headers: {
