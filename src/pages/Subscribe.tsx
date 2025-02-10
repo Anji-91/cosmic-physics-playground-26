@@ -34,19 +34,19 @@ const Subscribe = () => {
 
   const checkSubscription = async (uid: string) => {
     try {
-      const { data: subscription, error } = await supabase
+      const { data: subscriptions, error } = await supabase
         .from('subscriptions')
         .select('status')
-        .eq('user_id', uid)
-        .maybeSingle();
+        .eq('user_id', uid);
 
       if (error) {
         console.error('Error checking subscription:', error);
         return;
       }
 
-      // Only redirect if there's an active subscription
-      if (subscription?.status === 'active') {
+      // Check if there's an active subscription in the results
+      const activeSubscription = subscriptions?.find(sub => sub.status === 'active');
+      if (activeSubscription) {
         navigate('/');
       }
     } catch (error) {
