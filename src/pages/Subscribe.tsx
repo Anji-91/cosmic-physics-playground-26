@@ -45,6 +45,7 @@ const Subscribe = () => {
         return;
       }
 
+      // Only redirect if there's an active subscription
       if (subscription?.status === 'active') {
         navigate('/');
       }
