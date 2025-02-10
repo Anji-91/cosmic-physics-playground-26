@@ -4,6 +4,7 @@ import { stripe } from './stripe.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -28,7 +29,10 @@ Deno.serve(async (req) => {
 
     if (getUserError || !user) {
       console.error('Auth error:', getUserError)
-      throw new Error('Invalid user token')
+      return new Response(
+        JSON.stringify({ error: 'Invalid user token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
     }
 
     // Check for existing subscription
@@ -40,12 +44,15 @@ Deno.serve(async (req) => {
 
     if (subError) {
       console.error('Subscription check error:', subError)
-      throw new Error('Failed to check subscription status')
+      return new Response(
+        JSON.stringify({ error: 'Failed to check subscription status' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
     }
 
     if (existingSubscription?.status === 'active') {
       return new Response(
-        JSON.stringify({ message: 'Already subscribed' }),
+        JSON.stringify({ error: 'Already subscribed' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
@@ -62,7 +69,7 @@ Deno.serve(async (req) => {
       stripeCustomerId = customer.id
     }
 
-    // Create Stripe Checkout session with one-time payment using specific price ID
+    // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       line_items: [
@@ -88,19 +95,22 @@ Deno.serve(async (req) => {
 
       if (insertError) {
         console.error('Insert subscription error:', insertError)
-        throw new Error('Failed to create subscription record')
+        return new Response(
+          JSON.stringify({ error: 'Failed to create subscription record' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        )
       }
     }
 
     return new Response(
       JSON.stringify({ sessionUrl: session.url }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
     console.error('Stripe function error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
 })
