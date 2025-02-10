@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
       customer: stripeCustomerId,
       line_items: [
         {
-          price: 'price_1Qqg2hKuno5qhUHctG4xRE73',
+          price: 'price_1Qqg2hKuno5qhUHctG4xRE73', // Updated price ID
           quantity: 1,
         },
       ],
