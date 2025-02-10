@@ -9,25 +9,47 @@ import { supabase } from '@/integrations/supabase/client';
 const Subscribe = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    checkSubscription();
+    checkUser();
   }, []);
 
-  const checkSubscription = async () => {
-    const { data: subscription, error } = await supabase
-      .from('subscriptions')
-      .select('status')
-      .eq('user_id', (await supabase.auth.getUser()).data.user?.id || '')
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error checking subscription:', error);
-      return;
+  const checkUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please sign in first');
+        navigate('/auth');
+        return;
+      }
+      setUserId(user.id);
+      checkSubscription(user.id);
+    } catch (error: any) {
+      console.error('Error checking user:', error);
+      toast.error('Authentication error. Please sign in again.');
+      navigate('/auth');
     }
+  };
 
-    if (subscription?.status === 'active') {
-      navigate('/');
+  const checkSubscription = async (uid: string) => {
+    try {
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', uid)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking subscription:', error);
+        return;
+      }
+
+      if (subscription?.status === 'active') {
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
     }
   };
 
@@ -35,6 +57,7 @@ const Subscribe = () => {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session) {
         toast.error('Please sign in first');
         navigate('/auth');
@@ -43,6 +66,9 @@ const Subscribe = () => {
 
       const response = await supabase.functions.invoke('stripe', {
         body: {},
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       if (response.error) {
@@ -50,13 +76,22 @@ const Subscribe = () => {
       }
 
       const { sessionUrl } = response.data;
+      if (!sessionUrl) {
+        throw new Error('No checkout session URL received');
+      }
+
       window.location.href = sessionUrl;
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Failed to initiate payment');
+      console.error('Payment error:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  if (!userId) {
+    return null; // Wait for auth check
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">

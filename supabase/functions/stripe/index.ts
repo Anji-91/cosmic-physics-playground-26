@@ -9,26 +9,39 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    )
-
+    // Get auth header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       throw new Error('Missing Authorization header')
     }
 
-    const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''))
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    )
+
+    // Get user data
+    const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
     if (getUserError || !user) {
+      console.error('Auth error:', getUserError)
       throw new Error('Invalid user token')
     }
 
-    const { data: existingSubscription } = await supabaseClient
+    // Check for existing subscription
+    const { data: existingSubscription, error: subError } = await supabaseClient
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
+
+    if (subError) {
+      console.error('Subscription check error:', subError)
+      throw new Error('Failed to check subscription status')
+    }
 
     if (existingSubscription?.status === 'active') {
       return new Response(
@@ -49,12 +62,12 @@ Deno.serve(async (req) => {
       stripeCustomerId = customer.id
     }
 
-    // Create Stripe Checkout session for one-time payment
+    // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       line_items: [
         {
-          price: 'price_1Qqg2hKuno5qhUHctG4xRE73', // Using the provided price ID
+          price: 'price_1Qqg2hKuno5qhUHctG4xRE73',
           quantity: 1,
         },
       ],
@@ -65,11 +78,18 @@ Deno.serve(async (req) => {
 
     // Create or update subscription record
     if (!existingSubscription) {
-      await supabaseClient.from('subscriptions').insert({
-        user_id: user.id,
-        stripe_customer_id: stripeCustomerId,
-        status: 'incomplete',
-      })
+      const { error: insertError } = await supabaseClient
+        .from('subscriptions')
+        .insert({
+          user_id: user.id,
+          stripe_customer_id: stripeCustomerId,
+          status: 'incomplete',
+        })
+
+      if (insertError) {
+        console.error('Insert subscription error:', insertError)
+        throw new Error('Failed to create subscription record')
+      }
     }
 
     return new Response(
@@ -77,6 +97,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Stripe function error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
