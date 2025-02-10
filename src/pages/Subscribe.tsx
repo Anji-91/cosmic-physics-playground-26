@@ -81,26 +81,29 @@ const Subscribe = () => {
         return;
       }
 
-      const response = await supabase.functions.invoke('stripe', {
+      const { data, error } = await supabase.functions.invoke('stripe', {
         body: {},
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
 
-      if (response.error) {
-        throw new Error(response.error.message);
+      console.log('Stripe function response:', { data, error }); // Debug log
+
+      if (error) {
+        console.error('Stripe function error:', error);
+        throw new Error(error.message || 'Failed to create checkout session');
       }
 
-      const { sessionUrl } = response.data;
-      if (!sessionUrl) {
+      if (!data?.sessionUrl) {
         throw new Error('No checkout session URL received');
       }
 
-      window.location.href = sessionUrl;
+      // Redirect to Stripe checkout
+      window.location.href = data.sessionUrl;
     } catch (error: any) {
-      toast.error(error.message || 'Failed to initiate payment');
       console.error('Payment error:', error);
+      toast.error(error.message || 'Failed to initiate payment');
     } finally {
       setLoading(false);
     }
