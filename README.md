@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/a5ef9402-e096-4577-b2a6-3a55eeeb9d7b
+**URL**:(https://cosmic-physics-playground.vercel.app/)
 
 ## How can I edit this code?
 
